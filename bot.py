@@ -9,16 +9,16 @@ exchange = ccxt.binance({
     'secret': config.SECRET_KEY,
 })
 
-bars = exchange.fetch_ohlcv('ETH/USDT', limit=20)
-df = pd.DataFrame(bars, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+bars = exchange.fetch_ohlcv('ETH/USDT', limit=21)
+df = pd.DataFrame(bars[:-1], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
 
-bb_indicator = BollingerBands(df['Close'], window=20, window_dev=2, fillna = True)
+bb_indicator = BollingerBands(df['Close'], window=20, window_dev=2)
 
 df['lower_band'] = bb_indicator.bollinger_lband()
 df['upper_band'] = bb_indicator.bollinger_hband()
 df['moving_average'] = bb_indicator.bollinger_mavg()
 
-atr_indicator = AverageTrueRange(df['High'], df['Low'], df['Close'], fillna= True)
+atr_indicator = AverageTrueRange(df['High'], df['Low'], df['Close'])
 df['ATR'] = atr_indicator.average_true_range()
 print(df)
 
