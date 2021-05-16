@@ -20,6 +20,7 @@ cash = 1000.00
 coin_amount = 0.0
 ledger = open('ledger.txt', 'w')
 ledger.write(f"Starting Cash = {starting_cash}\n")
+counter = 5
 
 def tr(df):
     df['previous_close'] = df['close'].shift(1)
@@ -71,6 +72,7 @@ def check_buy_sell(df):
         in_position = True
         coin_amount = cash / df['close'][current]
         print('Executing Buy')
+        print(df)
         ledger.write("Executing buy at "+str(df['timestamp'][current])+'. Current cash = '+str(cash)+'. Amount bought = '+str(coin_amount)+'. Price: '+str(df['close'][current])+'\n')
     
     if df['in_uptrend'][previous] and not df['in_uptrend'][current] and in_position:
@@ -78,19 +80,19 @@ def check_buy_sell(df):
         cash = coin_amount * df['close'][current]
         coin_amount = 0
         print('Sell')
-        ledger.write("Executing sell at "+df['timestamp']+'. Current Cash = '+str(cash)+'. Amount Sold = '+str(coin_amount)+'. Price: '+str(df['close'])+'\n')
+        print(df)
+        ledger.write("Executing sell at "+str(df['timestamp'][current])+'. Current Cash = '+str(cash)+'. Amount Sold = '+str(coin_amount)+'. Price: '+str(df['close'][current])+'\n')
 
 def run_supertrend():
     print("Fetching Data")
-    bars = exchange.fetch_ohlcv('ETH/USDT', timeframe ='1m', limit=100)  
+    bars = exchange.fetch_ohlcv('XLM/USDT', timeframe ='15m', limit=100)  
     df = pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', )
     df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern').dt.tz_localize(None)
     super_trend = supertrend(df)
-    print(super_trend)
     check_buy_sell(super_trend)
 
-schedule.every(5).seconds.do(run_supertrend)
+schedule.every(7).minutes.do(run_supertrend)
 
 while True:
     schedule.run_pending()
