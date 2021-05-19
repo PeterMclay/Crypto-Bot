@@ -35,9 +35,14 @@ def atr(df, period=14):
     _atr = df['tr'].rolling(period).mean()
     return _atr
 
+def ma(df, period=30):
+    _ma = df['close'].rolling(window=period).mean()
+    return(_ma)
+
 def supertrend(df, period=7, multiplier=3):
     hl2 = (df['high'] + df['low']) / 2
     df['atr'] = atr(df, period)
+    df['moving_average'] = ma(df)
     df['upperband'] = hl2 + (multiplier * df['atr'])
     df['lowerband'] = hl2 - (multiplier * df['atr'])
     df['in_uptrend'] = True
@@ -85,18 +90,19 @@ def check_buy_sell(df):
 
 def run_supertrend():
     print("Fetching Data")
-    bars = exchange.fetch_ohlcv('XLM/USDT', timeframe ='15m', limit=100)  
+    bars = exchange.fetch_ohlcv('ETH/USDT', timeframe ='15m', limit=100)  
     df = pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', )
     df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern').dt.tz_localize(None)
     super_trend = supertrend(df)
     check_buy_sell(super_trend)
 
-schedule.every(7).minutes.do(run_supertrend)
+schedule.every(20).seconds.do(run_supertrend)
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+
 
 
 
