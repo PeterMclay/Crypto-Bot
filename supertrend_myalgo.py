@@ -90,7 +90,7 @@ def check_buy_sell(df):
 
 def run_supertrend():
     print("Fetching Data")
-    bars = exchange.fetch_ohlcv('ETH/USDT', timeframe ='15m', limit=100)  
+    bars = exchange.fetch_ohlcv('ETH/USDT', timeframe ='5m', limit=100)  
     df = pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', )
     df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern').dt.tz_localize(None)
